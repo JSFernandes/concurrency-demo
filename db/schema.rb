@@ -10,10 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171107224006) do
+ActiveRecord::Schema.define(version: 20171107225522) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "events", force: :cascade do |t|
+    t.string  "name",                       null: false
+    t.integer "price_in_cents", default: 0
+  end
 
   create_table "users", force: :cascade do |t|
     t.integer "balance_in_cents", default: 0
