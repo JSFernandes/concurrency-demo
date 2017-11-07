@@ -1,0 +1,17 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: concurrency
+  pool: 5
+  username: postgres
+  password: rage
+  host: localhost
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: concurrency_test
+  pool: 5
+  username: postgres
+  password: rage
+  host: localhost
