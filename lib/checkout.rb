@@ -5,7 +5,7 @@ class Checkout
   end
 
   def process
-    ActiveRecord::Base.transaction do
+    user.with_lock do
       fetch_ticket
       update_user_balance
       assign_ticket_to_user
