@@ -1,5 +1,6 @@
 require "rails_helper"
 require "#{Rails.root}/lib/checkout"
+require "concurrency_helper"
 
 def populate_tickets(event_id, count: 1)
   count.times do
@@ -95,17 +96,10 @@ describe Checkout do
         populate_tickets(event.id, count: 2)
         user # create user
 
-        ActiveRecord::Base.connection.disconnect!
-        Array.new(50) do
-          Process.fork do
-            $stderr.reopen(File.new(File::NULL, "w"))
-            $stdout.reopen(File.new(File::NULL, "w"))
-            ActiveRecord::Base.establish_connection
-            checkout = described_class.new(user_id: user.id, event_id: event.id)
-            checkout.process
-          end
+        make_concurrent_calls(count: 50) do
+          checkout = described_class.new(user_id: user.id, event_id: event.id)
+          checkout.process
         end
-        ActiveRecord::Base.establish_connection
 
         user.reload
         available_tickets = Ticket.where(user_id: nil)
