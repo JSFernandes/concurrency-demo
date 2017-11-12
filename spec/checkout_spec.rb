@@ -85,4 +85,36 @@ describe Checkout do
       end
     end
   end
+
+  describe "concurrent calls to #process" do
+    let(:user) { User.create!(balance_in_cents: 100) }
+    let(:event) { Event.create!(name: "Rails meetup", price_in_cents: 100) }
+
+    context "when 2 tickets exist" do
+      it "only assigns one ticket to the user" do
+        populate_tickets(event.id, count: 2)
+        user # create user
+
+        ActiveRecord::Base.connection.disconnect!
+        Array.new(50) do
+          Process.fork do
+            $stderr.reopen(File.new(File::NULL, "w"))
+            $stdout.reopen(File.new(File::NULL, "w"))
+            ActiveRecord::Base.establish_connection
+            checkout = described_class.new(user_id: user.id, event_id: event.id)
+            checkout.process
+          end
+        end
+        ActiveRecord::Base.establish_connection
+
+        user.reload
+        available_tickets = Ticket.where(user_id: nil)
+        purchased_tickets = Ticket.where(user_id: user.id)
+
+        expect(available_tickets.count).to eq(1)
+        expect(purchased_tickets.count).to eq(1)
+        expect(user.balance_in_cents).to eq(0)
+      end
+    end
+  end
 end
