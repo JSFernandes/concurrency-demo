@@ -1,14 +1,20 @@
 class Checkout
+  include ForkBreak::Breakpoints
+
   def initialize(user_id:, event_id:)
     @user = User.find(user_id)
     @event = Event.find(event_id)
   end
 
   def process
+    breakpoints << :before_transaction
     user.with_lock do
       fetch_ticket
+      breakpoints << :after_fetch
       update_user_balance
+      breakpoints << :after_balance_update
       assign_ticket_to_user
+      breakpoints << :after_ticket_update
     end
   end
 

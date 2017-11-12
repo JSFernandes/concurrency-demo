@@ -109,6 +109,35 @@ describe Checkout do
         expect(purchased_tickets.count).to eq(1)
         expect(user.balance_in_cents).to eq(0)
       end
+
+      it "raises an error" do
+        populate_tickets(event.id, count: 2)
+        user # create user
+
+        process1, process2 = 2.times.map do
+          ForkBreak::Process.new do
+            $stderr.reopen(File.new(File::NULL, "w"))
+            $stdout.reopen(File.new(File::NULL, "w"))
+            ActiveRecord::Base.establish_connection
+            described_class.new(user_id: user.id, event_id: event.id).process
+          end
+        end
+
+        ActiveRecord::Base.connection.disconnect!
+        process1.run_until(:before_transaction).wait
+        process2.run_until(:before_transaction).wait
+        process1.finish.wait
+        expect { process2.finish.wait }.to raise_error("User does not have enough balance for this event :(")
+        ActiveRecord::Base.establish_connection
+
+        user.reload
+        available_tickets = Ticket.where(user_id: nil)
+        purchased_tickets = Ticket.where(user_id: user.id)
+
+        expect(available_tickets.count).to eq(1)
+        expect(purchased_tickets.count).to eq(1)
+        expect(user.balance_in_cents).to eq(0)
+      end
     end
   end
 end

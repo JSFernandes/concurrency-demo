@@ -52,6 +52,7 @@ end
 
 group :test do
   gem "database_cleaner", "~> 1.6.2"
+  gem "fork_break", "~> 0.1.4"
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
