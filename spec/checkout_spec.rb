@@ -10,7 +10,7 @@ end
 describe Checkout do
   describe "#process" do
     let(:user) { User.create!(balance_in_cents: 100) }
-    let(:event) { Event.create!(name: "Rails meetup", price_in_cents: 100)}
+    let(:event) { Event.create!(name: "Rails meetup", price_in_cents: 100) }
 
     context "when there is a single ticket" do
       it "processes the checkout" do
@@ -49,7 +49,7 @@ describe Checkout do
 
   describe "calling #process twice" do
     let(:user) { User.create!(balance_in_cents: 100) }
-    let(:event) { Event.create!(name: "Rails meetup", price_in_cents: 100)}
+    let(:event) { Event.create!(name: "Rails meetup", price_in_cents: 100) }
 
     context "when there are 2 tickets available, but the user does not have enough balance" do
       it "raises an error, bills the user once, and leaves the ticket available" do
