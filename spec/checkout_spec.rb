@@ -114,7 +114,7 @@ describe Checkout do
         populate_tickets(event.id, count: 2)
         user # create user
 
-        processes = 2.times.map do
+        processes = Array.new(2).map do
           make_forkbreak_process do |breakpoints|
             checkout = described_class.new(user_id: user.id, event_id: event.id)
             add_breakpoint(breakpoints, checkout, :before_process)
