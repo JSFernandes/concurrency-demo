@@ -115,17 +115,19 @@ describe Checkout do
         user # create user
 
         process1, process2 = 2.times.map do
-          ForkBreak::Process.new do
+          ForkBreak::Process.new do |breakpoints|
             $stderr.reopen(File.new(File::NULL, "w"))
             $stdout.reopen(File.new(File::NULL, "w"))
             ActiveRecord::Base.establish_connection
-            described_class.new(user_id: user.id, event_id: event.id).process
+            checkout = described_class.new(user_id: user.id, event_id: event.id)
+            add_breakpoint(breakpoints, checkout, :before_process)
+            checkout.process
           end
         end
 
         ActiveRecord::Base.connection.disconnect!
-        process1.run_until(:before_transaction).wait
-        process2.run_until(:before_transaction).wait
+        process1.run_until(:before_process).wait
+        process2.run_until(:before_process).wait
         process1.finish.wait
         expect { process2.finish.wait }.to raise_error("User does not have enough balance for this event :(")
         ActiveRecord::Base.establish_connection
