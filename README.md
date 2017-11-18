@@ -1,24 +1,32 @@
-# README
+# Concurrency demo
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This project is a demo of concurrency testing done in RSpec.
 
-Things you may want to cover:
+To achieve this, the project makes use of regular forks, and of the [fork break gem](https://github.com/forkbreak/fork_break).
+It also cleans up the use of fork break with a methodology based on [this post](https://coderwall.com/p/cwergq/testing-concurrency-with-rspec-the-easy-way).
 
-* Ruby version
+I recommend following the repository's commit history in order to understand how the testing evolved in the project.
 
-* System dependencies
+## Running the project
 
-* Configuration
+To run this project you need to have Ruby and PostgreSQL installed. There is no specified `.ruby-version` file,
+but I expect it to work with with anything 2.2+.
 
-* Database creation
+Install the necessary gems:
 
-* Database initialization
+```
+  bundle install
+```
 
-* How to run the test suite
+Setup the database:
 
-* Services (job queues, cache servers, search engines, etc.)
+```
+  bundle exec rake db:create
+  bundle exec rake db:migrate
+```
 
-* Deployment instructions
+Run the tests:
 
-* ...
+```
+  bundle exec rspec
+```
